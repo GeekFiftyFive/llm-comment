@@ -2,6 +2,8 @@
   "name": "llm-comment",
   "version": "0.1.0",
   "description": "Review agent output in a local web UI with inline comments, then have the agent act on them.",
-  "author": { "name": "GeekFiftyFive" },
-  "license": "ISC"
+  "author": {
+    "name": "Amy Pellatt"
+  },
+  "license": "MIT"
 }
