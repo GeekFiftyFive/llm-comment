@@ -16,12 +16,13 @@
   },
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build": "npm run clean && tsc -p tsconfig.build.json",
-    "typecheck": "tsc",
+    "build": "npm run clean && tsc -p tsconfig.build.json && vite build",
+    "typecheck": "tsc && tsc -p web",
     "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/",
     "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/ --watch",
     "start": "node dist/cli.js",
-    "prepare": "npm run build"
+    "prepare": "npm run build",
+    "dev:web": "vite"
   },
   "keywords": [],
   "author": "",
@@ -29,10 +30,18 @@
   "devDependencies": {
     "@swc/core": "^1.16.22",
     "@swc/jest": "^0.2.39",
+    "@types/hast": "^3.0.5",
     "@types/jest": "^30.0.0",
     "@types/node": "^24.19.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "jest": "^30.5.2",
-    "typescript": "^7.0.2"
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.6"
   },
   "dependencies": {
     "fastify": "^5.12.8"

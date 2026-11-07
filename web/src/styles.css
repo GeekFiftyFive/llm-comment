@@ -1,0 +1,282 @@
+:root {
+  --bg: #ffffff;
+  --panel: #f6f7f9;
+  --text: #1d2026;
+  --muted: #646b78;
+  --border: #dde1e7;
+  --accent: #3b5bdb;
+  --accent-text: #ffffff;
+  --danger: #c92a2a;
+  --hl: rgba(250, 200, 50, 0.25);
+  --hl-active: rgba(250, 176, 5, 0.5);
+  --code-bg: #f1f3f5;
+  color-scheme: light dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #17191d;
+    --panel: #1f2227;
+    --text: #e4e6ea;
+    --muted: #9aa1ad;
+    --border: #33373e;
+    --accent: #748ffc;
+    --accent-text: #10121a;
+    --danger: #ff8787;
+    --hl: rgba(250, 200, 50, 0.16);
+    --hl-active: rgba(250, 176, 5, 0.38);
+    --code-bg: #24272d;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+button {
+  font: inherit;
+  font-size: 13px;
+  padding: 4px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text);
+  cursor: pointer;
+}
+button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+button.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-text);
+}
+button.danger {
+  color: var(--danger);
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 340px;
+  grid-template-rows: auto auto 1fr;
+  height: 100vh;
+}
+
+.toolbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--border);
+}
+.spacer {
+  flex: 1;
+}
+.count,
+.muted {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.segmented {
+  display: flex;
+}
+.segmented button {
+  border-radius: 0;
+}
+.segmented button:first-child {
+  border-radius: 6px 0 0 6px;
+}
+.segmented button:last-child {
+  border-radius: 0 6px 6px 0;
+  border-left: none;
+}
+.segmented button[aria-pressed='true'] {
+  background: var(--panel);
+  font-weight: 600;
+}
+
+.error {
+  grid-column: 1 / -1;
+  padding: 8px 16px;
+  color: var(--danger);
+  border-bottom: 1px solid var(--border);
+}
+
+.document {
+  overflow: auto;
+  padding: 24px 40px 80px;
+}
+
+.markdown {
+  max-width: 780px;
+  margin: 0 auto;
+}
+.markdown pre,
+.markdown code {
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 13px;
+  background: var(--code-bg);
+  border-radius: 4px;
+}
+.markdown code {
+  padding: 1px 4px;
+}
+.markdown pre {
+  padding: 12px;
+  overflow-x: auto;
+}
+.markdown pre code {
+  padding: 0;
+  background: none;
+}
+.markdown table {
+  border-collapse: collapse;
+}
+.markdown th,
+.markdown td {
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+}
+.markdown blockquote {
+  margin-left: 0;
+  padding-left: 12px;
+  border-left: 3px solid var(--border);
+  color: var(--muted);
+}
+.markdown a {
+  color: var(--accent);
+}
+.img-placeholder {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* Scoped under .document so highlights win over element backgrounds such as code blocks. */
+.document .hl {
+  background: var(--hl);
+  border-radius: 3px;
+}
+.document .hl-active {
+  background: var(--hl-active);
+}
+
+.source {
+  margin: 0;
+  font: 13px/1.6 ui-monospace, 'SF Mono', Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.source .line {
+  padding-left: 4.5em;
+  text-indent: -4.5em;
+}
+/* Line numbers live in a pseudo-element so they're never part of a text selection. */
+.source .line::before {
+  content: attr(data-ln);
+  display: inline-block;
+  width: 3.5em;
+  margin-right: 1em;
+  text-align: right;
+  text-indent: 0;
+  color: var(--muted);
+}
+
+.sidebar {
+  overflow: auto;
+  padding: 12px;
+  background: var(--panel);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.hint {
+  margin: 8px 4px;
+}
+
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+}
+.card.active,
+.card.composer {
+  border-color: var(--accent);
+}
+.card-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+button.link {
+  border: none;
+  padding: 0;
+  background: none;
+}
+button.link:hover {
+  text-decoration: underline;
+}
+.quote {
+  margin: 6px 0;
+  padding-left: 8px;
+  border-left: 3px solid var(--hl-active);
+  font-size: 13px;
+  color: var(--muted);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.comment-text {
+  margin: 6px 0;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.card textarea {
+  width: 100%;
+  min-height: 80px;
+  margin-top: 6px;
+  padding: 6px 8px;
+  font: inherit;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  resize: vertical;
+}
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.finished {
+  max-width: 480px;
+  margin: 20vh auto;
+  padding: 0 16px;
+  text-align: center;
+}
+
+@media (max-width: 760px) {
+  .layout {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+    height: auto;
+  }
+  .document {
+    padding: 16px;
+  }
+  .sidebar {
+    border-left: none;
+    border-top: 1px solid var(--border);
+  }
+}
