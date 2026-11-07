@@ -1,0 +1,14 @@
+{
+  "name": "llm-comment",
+  "owner": {
+    "name": "GeekFiftyFive"
+  },
+  "description": "Inline comments on AI agent output, handed back to the agent.",
+  "plugins": [
+    {
+      "name": "llm-comment",
+      "source": "./plugin",
+      "description": "Review agent output in a local web UI with inline comments, then have the agent act on them."
+    }
+  ]
+}
