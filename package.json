@@ -2,9 +2,20 @@
   "name": "llm-comment",
   "version": "0.1.0",
   "description": "Leave inline comments on AI agent output in a local web UI",
-  "keywords": [],
-  "license": "ISC",
-  "author": "",
+  "keywords": [
+    "agent",
+    "agent-skill",
+    "ai",
+    "annotation",
+    "claude-code",
+    "cli",
+    "code-review",
+    "codex",
+    "inline-comments",
+    "llm"
+  ],
+  "license": "MIT",
+  "author": "Amy Pellatt",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/GeekFiftyFive/llm-comment.git"
