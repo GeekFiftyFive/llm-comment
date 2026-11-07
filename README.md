@@ -49,7 +49,14 @@ Output:
   "document": { "sha256": "…", "lines": 31 },
   "status": "done",
   "comments": [
-    { "id": "…", "startLine": 7, "endLine": 9, "quote": "selected text", "comment": "…", "createdAt": "…" }
+    {
+      "id": "…",
+      "startLine": 7,
+      "endLine": 9,
+      "quote": "selected text",
+      "comment": "…",
+      "createdAt": "…"
+    }
   ]
 }
 ```

@@ -1,6 +1,6 @@
-import { randomBytes, randomUUID } from 'node:crypto';
-import { readFile, rename, writeFile } from 'node:fs/promises';
-import type { DocumentInfo } from './session.js';
+import { randomBytes, randomUUID } from "node:crypto";
+import { readFile, rename, writeFile } from "node:fs/promises";
+import type { DocumentInfo } from "./session.js";
 
 export const MAX_COMMENTS = 500;
 
@@ -17,7 +17,7 @@ export interface Comment {
 export interface CommentsFile {
   version: 1;
   document: { sha256: string; lines: number };
-  status: 'open' | 'done';
+  status: "open" | "done";
   comments: Comment[];
 }
 
@@ -39,8 +39,8 @@ export class CommentError extends Error {
 
 async function writeAtomic(path: string, data: string): Promise<void> {
   // `wx` refuses to follow a pre-existing file or symlink at the temp path.
-  const temp = `${path}.${randomBytes(6).toString('hex')}.tmp`;
-  await writeFile(temp, data, { flag: 'wx', mode: 0o600 });
+  const temp = `${path}.${randomBytes(6).toString("hex")}.tmp`;
+  await writeFile(temp, data, { flag: "wx", mode: 0o600 });
   await rename(temp, path);
 }
 
@@ -57,7 +57,7 @@ export class CommentStore {
     const store = new CommentStore(path, {
       version: 1,
       document: { sha256: document.sha256, lines: document.lines },
-      status: 'open',
+      status: "open",
       comments: [],
     });
     await store.persist();
@@ -65,7 +65,7 @@ export class CommentStore {
   }
 
   static async load(path: string): Promise<CommentStore> {
-    return new CommentStore(path, JSON.parse(await readFile(path, 'utf8')) as CommentsFile);
+    return new CommentStore(path, JSON.parse(await readFile(path, "utf8")) as CommentsFile);
   }
 
   snapshot(): CommentsFile {
@@ -101,19 +101,19 @@ export class CommentStore {
   }
 
   async markDone(): Promise<void> {
-    this.data.status = 'done';
+    this.data.status = "done";
     await this.persist();
   }
 
   private find(id: string): Comment {
     const comment = this.data.comments.find((c) => c.id === id);
-    if (!comment) throw new CommentError('Comment not found', 404);
+    if (!comment) throw new CommentError("Comment not found", 404);
     return comment;
   }
 
   private persist(): Promise<void> {
     // Serialise writes so a slow write can never overwrite a newer one.
-    const json = JSON.stringify(this.data, null, 2) + '\n';
+    const json = JSON.stringify(this.data, null, 2) + "\n";
     this.writes = this.writes.catch(() => {}).then(() => writeAtomic(this.path, json));
     return this.writes;
   }

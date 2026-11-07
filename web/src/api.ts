@@ -17,20 +17,20 @@ export interface Comment {
 export interface CommentsFile {
   version: 1;
   document: { sha256: string; lines: number };
-  status: 'open' | 'done';
+  status: "open" | "done";
   comments: Comment[];
 }
 
-export type NewComment = Pick<Comment, 'startLine' | 'endLine' | 'quote' | 'comment'>;
+export type NewComment = Pick<Comment, "startLine" | "endLine" | "quote" | "comment">;
 
-const TOKEN_KEY = 'llm-comment-token';
+const TOKEN_KEY = "llm-comment-token";
 
 /** Takes the token from the URL fragment, then removes it from the address bar. */
 function readToken(): string | null {
-  const fromHash = new URLSearchParams(location.hash.slice(1)).get('token');
+  const fromHash = new URLSearchParams(location.hash.slice(1)).get("token");
   if (fromHash) {
     sessionStorage.setItem(TOKEN_KEY, fromHash);
-    history.replaceState(null, '', location.pathname);
+    history.replaceState(null, "", location.pathname);
     return fromHash;
   }
   return sessionStorage.getItem(TOKEN_KEY);
@@ -41,8 +41,8 @@ const token = readToken();
 export const hasToken = token !== null;
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
-  const headers: Record<string, string> = { authorization: `Bearer ${token ?? ''}` };
-  if (body !== undefined) headers['content-type'] = 'application/json';
+  const headers: Record<string, string> = { authorization: `Bearer ${token ?? ""}` };
+  if (body !== undefined) headers["content-type"] = "application/json";
   const response = await fetch(path, {
     method,
     headers,
@@ -56,10 +56,11 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
 }
 
 export const api = {
-  document: () => request<DocumentInfo>('GET', '/api/document'),
-  comments: () => request<CommentsFile>('GET', '/api/comments'),
-  add: (comment: NewComment) => request<Comment>('POST', '/api/comments', comment),
-  update: (id: string, comment: string) => request<Comment>('PATCH', `/api/comments/${id}`, { comment }),
-  remove: (id: string) => request<void>('DELETE', `/api/comments/${id}`),
-  done: () => request<void>('POST', '/api/done'),
+  document: () => request<DocumentInfo>("GET", "/api/document"),
+  comments: () => request<CommentsFile>("GET", "/api/comments"),
+  add: (comment: NewComment) => request<Comment>("POST", "/api/comments", comment),
+  update: (id: string, comment: string) =>
+    request<Comment>("PATCH", `/api/comments/${id}`, { comment }),
+  remove: (id: string) => request<void>("DELETE", `/api/comments/${id}`),
+  done: () => request<void>("POST", "/api/done"),
 };

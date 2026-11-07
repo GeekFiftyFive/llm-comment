@@ -2,16 +2,16 @@
   "name": "llm-comment",
   "version": "0.1.0",
   "description": "Leave inline comments on AI agent output in a local web UI",
-  "type": "module",
+  "keywords": [],
+  "license": "ISC",
+  "author": "",
   "bin": {
     "llm-comment": "dist/cli.js"
   },
   "files": [
     "dist"
   ],
-  "engines": {
-    "node": ">=24"
-  },
+  "type": "module",
   "scripts": {
     "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "npm run clean && tsc -p tsconfig.build.json && vite build",
@@ -23,9 +23,10 @@
     "prepare": "npm run build",
     "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/ --watch"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "dependencies": {
+    "fastify": "^5.12.8",
+    "open": "^11.0.4"
+  },
   "devDependencies": {
     "@swc/core": "^1.16.22",
     "@swc/jest": "^0.2.39",
@@ -42,8 +43,7 @@
     "typescript": "^7.0.2",
     "vite": "^8.3.6"
   },
-  "dependencies": {
-    "fastify": "^5.12.8",
-    "open": "^11.0.4"
+  "engines": {
+    "node": ">=24"
   }
 }

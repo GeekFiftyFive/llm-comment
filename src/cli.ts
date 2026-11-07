@@ -1,22 +1,22 @@
 #!/usr/bin/env node
-import { type ChildProcess, spawn } from 'node:child_process';
-import { randomBytes } from 'node:crypto';
-import { readFile, writeFile } from 'node:fs/promises';
-import type { AddressInfo } from 'node:net';
-import { fileURLToPath } from 'node:url';
-import { parseArgs } from 'node:util';
-import { buildServer } from './server.js';
+import { type ChildProcess, spawn } from "node:child_process";
+import { randomBytes } from "node:crypto";
+import { readFile, writeFile } from "node:fs/promises";
+import type { AddressInfo } from "node:net";
+import { fileURLToPath } from "node:url";
+import { parseArgs } from "node:util";
+import { buildServer } from "./server.js";
 import {
   createSession,
   loadDocument,
   resolveSession,
   type ServerInfo,
   type SessionPaths,
-} from './session.js';
-import { CommentStore } from './store.js';
+} from "./session.js";
+import { CommentStore } from "./store.js";
 
 const CLI_PATH = fileURLToPath(import.meta.url);
-const PUBLIC_DIR = fileURLToPath(new URL('./public/', import.meta.url));
+const PUBLIC_DIR = fileURLToPath(new URL("./public/", import.meta.url));
 const READY_TIMEOUT_MS = 10_000;
 
 const USAGE = `Usage:
@@ -30,20 +30,20 @@ Options for open:
   --timeout <min>    Stop the server after this many idle minutes (default: 120)
 `;
 
-type ExitReason = 'done' | 'timeout' | 'shutdown';
+type ExitReason = "done" | "timeout" | "shutdown";
 
 interface ServeOptions {
   port: number;
   timeoutMs: number;
 }
 
-type ReadyMessage = { type: 'ready'; url: string } | { type: 'error'; message: string };
+type ReadyMessage = { type: "ready"; url: string } | { type: "error"; message: string };
 
 class UsageError extends Error {}
 
 const serveArgs = {
-  port: { type: 'string', default: '0' },
-  timeout: { type: 'string', default: '120' },
+  port: { type: "string", default: "0" },
+  timeout: { type: "string", default: "120" },
 } as const;
 
 function parseServeOptions(values: { port: string; timeout: string }): ServeOptions {
@@ -61,9 +61,9 @@ function parseServeOptions(values: { port: string; timeout: string }): ServeOpti
 async function runServer(paths: SessionPaths, options: ServeOptions) {
   const document = await loadDocument(paths);
   const store = await CommentStore.load(paths.comments);
-  const token = randomBytes(32).toString('base64url');
+  const token = randomBytes(32).toString("base64url");
 
-  let reason: ExitReason = 'shutdown';
+  let reason: ExitReason = "shutdown";
   let idleTimer: NodeJS.Timeout | undefined;
   const stop = (why: ExitReason) => {
     reason = why;
@@ -71,7 +71,7 @@ async function runServer(paths: SessionPaths, options: ServeOptions) {
   };
   const resetIdleTimer = () => {
     clearTimeout(idleTimer);
-    idleTimer = setTimeout(() => stop('timeout'), options.timeoutMs);
+    idleTimer = setTimeout(() => stop("timeout"), options.timeoutMs);
   };
 
   const app = await buildServer({
@@ -80,16 +80,16 @@ async function runServer(paths: SessionPaths, options: ServeOptions) {
     token,
     publicDir: PUBLIC_DIR,
     onActivity: resetIdleTimer,
-    onDone: () => stop('done'),
+    onDone: () => stop("done"),
   });
   const closed = new Promise<ExitReason>((resolve) => {
-    app.addHook('onClose', async () => {
+    app.addHook("onClose", async () => {
       clearTimeout(idleTimer);
       resolve(reason);
     });
   });
 
-  await app.listen({ host: '127.0.0.1', port: options.port });
+  await app.listen({ host: "127.0.0.1", port: options.port });
   resetIdleTimer();
 
   const { port } = app.server.address() as AddressInfo;
@@ -100,13 +100,13 @@ async function runServer(paths: SessionPaths, options: ServeOptions) {
     // The token goes in the fragment so it is never sent to the server or in a Referer.
     url: `http://127.0.0.1:${port}/#token=${token}`,
     closed,
-    stop: () => stop('shutdown'),
+    stop: () => stop("shutdown"),
   };
 }
 
 async function openBrowser(url: string): Promise<void> {
   try {
-    const { default: open } = await import('open');
+    const { default: open } = await import("open");
     await open(url);
   } catch (error) {
     process.stderr.write(`Could not open a browser (${(error as Error).message}). Visit: ${url}\n`);
@@ -114,18 +114,21 @@ async function openBrowser(url: string): Promise<void> {
 }
 
 async function printComments(paths: SessionPaths): Promise<void> {
-  process.stdout.write(await readFile(paths.comments, 'utf8'));
+  process.stdout.write(await readFile(paths.comments, "utf8"));
 }
 
 function waitForReady(child: ChildProcess): Promise<string> {
   return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error('Server did not start in time')), READY_TIMEOUT_MS);
-    child.once('message', (message: ReadyMessage) => {
+    const timer = setTimeout(
+      () => reject(new Error("Server did not start in time")),
+      READY_TIMEOUT_MS,
+    );
+    child.once("message", (message: ReadyMessage) => {
       clearTimeout(timer);
-      if (message.type === 'ready') resolve(message.url);
+      if (message.type === "ready") resolve(message.url);
       else reject(new Error(message.message));
     });
-    child.once('exit', (code) => {
+    child.once("exit", (code) => {
       clearTimeout(timer);
       reject(new Error(`Server exited before it was ready (code ${code})`));
     });
@@ -139,12 +142,12 @@ async function openCommand(args: string[]): Promise<void> {
     allowNegative: true,
     options: {
       ...serveArgs,
-      wait: { type: 'boolean', default: false },
-      open: { type: 'boolean', default: true },
+      wait: { type: "boolean", default: false },
+      open: { type: "boolean", default: true },
     },
   });
   const file = positionals[0];
-  if (!file || positionals.length > 1) throw new UsageError('open takes exactly one file');
+  if (!file || positionals.length > 1) throw new UsageError("open takes exactly one file");
   const options = parseServeOptions(values);
 
   const { paths, document } = await createSession(file);
@@ -153,25 +156,25 @@ async function openCommand(args: string[]): Promise<void> {
   if (values.wait) {
     const server = await runServer(paths, options);
     process.stderr.write(`Session ${paths.id}: review the output at ${server.url}\n`);
-    process.once('SIGINT', server.stop);
-    process.once('SIGTERM', server.stop);
+    process.once("SIGINT", server.stop);
+    process.once("SIGTERM", server.stop);
     if (values.open) await openBrowser(server.url);
 
     const reason = await server.closed;
-    if (reason === 'timeout') process.stderr.write('Timed out waiting for the review to finish.\n');
+    if (reason === "timeout") process.stderr.write("Timed out waiting for the review to finish.\n");
     await printComments(paths);
     return;
   }
 
   const child = spawn(
     process.execPath,
-    [CLI_PATH, 'serve', paths.id, '--port', values.port, '--timeout', values.timeout],
-    { detached: true, stdio: ['ignore', 'ignore', 'ignore', 'ipc'] },
+    [CLI_PATH, "serve", paths.id, "--port", values.port, "--timeout", values.timeout],
+    { detached: true, stdio: ["ignore", "ignore", "ignore", "ipc"] },
   );
   try {
     const url = await waitForReady(child);
     if (values.open) await openBrowser(url);
-    process.stdout.write(JSON.stringify({ session: paths.id, url }) + '\n');
+    process.stdout.write(JSON.stringify({ session: paths.id, url }) + "\n");
   } finally {
     child.removeAllListeners();
     if (child.connected) child.disconnect();
@@ -183,27 +186,27 @@ async function openCommand(args: string[]): Promise<void> {
 async function serveCommand(args: string[]): Promise<void> {
   const { values, positionals } = parseArgs({ args, allowPositionals: true, options: serveArgs });
   try {
-    if (positionals.length !== 1) throw new UsageError('serve takes exactly one session id');
+    if (positionals.length !== 1) throw new UsageError("serve takes exactly one session id");
     const paths = await resolveSession(positionals[0]!);
     const server = await runServer(paths, parseServeOptions(values));
-    process.send?.({ type: 'ready', url: server.url } satisfies ReadyMessage);
+    process.send?.({ type: "ready", url: server.url } satisfies ReadyMessage);
     process.disconnect?.();
     await server.closed;
   } catch (error) {
-    process.send?.({ type: 'error', message: (error as Error).message } satisfies ReadyMessage);
+    process.send?.({ type: "error", message: (error as Error).message } satisfies ReadyMessage);
     throw error;
   }
 }
 
 async function commentsCommand(args: string[]): Promise<void> {
   const { positionals } = parseArgs({ args, allowPositionals: true, options: {} });
-  if (positionals.length !== 1) throw new UsageError('comments takes exactly one session id');
+  if (positionals.length !== 1) throw new UsageError("comments takes exactly one session id");
   const paths = await resolveSession(positionals[0]!);
 
   try {
-    const info = JSON.parse(await readFile(paths.server, 'utf8')) as ServerInfo;
+    const info = JSON.parse(await readFile(paths.server, "utf8")) as ServerInfo;
     await fetch(`http://127.0.0.1:${info.port}/api/shutdown`, {
-      method: 'POST',
+      method: "POST",
       headers: { authorization: `Bearer ${info.token}` },
       signal: AbortSignal.timeout(2000),
     });
@@ -216,15 +219,15 @@ async function commentsCommand(args: string[]): Promise<void> {
 async function main(argv: string[]): Promise<void> {
   const [command, ...args] = argv;
   switch (command) {
-    case 'open':
+    case "open":
       return openCommand(args);
-    case 'comments':
+    case "comments":
       return commentsCommand(args);
-    case 'serve':
+    case "serve":
       return serveCommand(args);
     case undefined:
-    case '-h':
-    case '--help':
+    case "-h":
+    case "--help":
       process.stdout.write(USAGE);
       return;
     default:

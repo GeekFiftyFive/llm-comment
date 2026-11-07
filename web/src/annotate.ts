@@ -1,4 +1,4 @@
-import type { Element, ElementContent, Root, RootContent } from 'hast';
+import type { Element, ElementContent, Root, RootContent } from "hast";
 
 export interface Highlight {
   startLine: number;
@@ -7,8 +7,27 @@ export interface Highlight {
 }
 
 const BLOCKS = new Set([
-  'p', 'li', 'ul', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'pre', 'blockquote',
-  'table', 'thead', 'tbody', 'tr', 'td', 'th', 'hr', 'div', 'section',
+  "p",
+  "li",
+  "ul",
+  "ol",
+  "h1",
+  "h2",
+  "h3",
+  "h4",
+  "h5",
+  "h6",
+  "pre",
+  "blockquote",
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "td",
+  "th",
+  "hr",
+  "div",
+  "section",
 ]);
 
 function lineRange(node: Element): [number, number] | null {
@@ -22,7 +41,7 @@ function overlaps([start, end]: [number, number], h: Highlight): boolean {
 
 function blockChildren(node: Element): Element[] {
   return node.children.filter(
-    (child): child is Element => child.type === 'element' && BLOCKS.has(child.tagName),
+    (child): child is Element => child.type === "element" && BLOCKS.has(child.tagName),
   );
 }
 
@@ -43,22 +62,29 @@ function highlight(node: Element, highlights: Highlight[]): void {
   });
 
   if (contained.length > 0 || children.length === 0) {
-    const classes = ['hl'];
-    if (hits.some((h) => h.active)) classes.push('hl-active');
-    node.properties.className = [...((node.properties.className as string[] | undefined) ?? []), ...classes];
+    const classes = ["hl"];
+    if (hits.some((h) => h.active)) classes.push("hl-active");
+    node.properties.className = [
+      ...((node.properties.className as string[] | undefined) ?? []),
+      ...classes,
+    ];
     return;
   }
   for (const child of children) highlight(child, hits);
 }
 
-function visit(nodes: (RootContent | ElementContent)[], highlights: Highlight[], topLevel: boolean): void {
+function visit(
+  nodes: (RootContent | ElementContent)[],
+  highlights: Highlight[],
+  topLevel: boolean,
+): void {
   for (const [index, node] of nodes.entries()) {
-    if (node.type === 'raw') {
+    if (node.type === "raw") {
       // Show raw HTML from the document as literal text rather than rendering it.
-      nodes[index] = { type: 'text', value: node.value };
+      nodes[index] = { type: "text", value: node.value };
       continue;
     }
-    if (node.type !== 'element') continue;
+    if (node.type !== "element") continue;
     const range = lineRange(node);
     if (range) {
       node.properties.dataSl = range[0];

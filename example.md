@@ -12,7 +12,11 @@ classes with a single responsibility each.
 
 ```ts
 for (let i = 0; i < 5; i++) {
-  try { return await charge(card); } catch { await sleep(1000); }
+  try {
+    return await charge(card);
+  } catch {
+    await sleep(1000);
+  }
 }
 ```
 
@@ -20,10 +24,10 @@ This should use exponential backoff with jitter.
 
 ## 3. Summary
 
-| Change | Risk | Effort |
-|---|---|---|
-| Split generator | Low | 2 days |
-| Retry backoff | Low | 0.5 days |
+| Change          | Risk | Effort   |
+| --------------- | ---- | -------- |
+| Split generator | Low  | 2 days   |
+| Retry backoff   | Low  | 0.5 days |
 
 - [x] Read the code
 - [ ] Write the tests first

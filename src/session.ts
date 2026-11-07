@@ -1,9 +1,9 @@
-import { createHash } from 'node:crypto';
-import { lstat, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
+import { createHash } from "node:crypto";
+import { lstat, mkdtemp, readFile, stat, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
 
-const PREFIX = 'llm-comment-';
+const PREFIX = "llm-comment-";
 // mkdtemp appends six characters from [A-Za-z0-9].
 const SESSION_ID = /^[A-Za-z0-9]{6}$/;
 export const MAX_DOCUMENT_BYTES = 5 * 1024 * 1024;
@@ -33,19 +33,19 @@ function pathsFor(dir: string, id: string): SessionPaths {
   return {
     id,
     dir,
-    document: join(dir, 'document.md'),
-    comments: join(dir, 'comments.json'),
-    server: join(dir, 'server.json'),
+    document: join(dir, "document.md"),
+    comments: join(dir, "comments.json"),
+    server: join(dir, "server.json"),
   };
 }
 
 export function describeDocument(content: string): DocumentInfo {
   const lines = content.split(/\r\n|\r|\n/);
   // A trailing newline ends the last line rather than starting a new one.
-  if (lines.length > 1 && lines.at(-1) === '') lines.pop();
+  if (lines.length > 1 && lines.at(-1) === "") lines.pop();
   return {
     content,
-    sha256: createHash('sha256').update(content).digest('hex'),
+    sha256: createHash("sha256").update(content).digest("hex"),
     lines: lines.length,
   };
 }
@@ -64,11 +64,11 @@ export async function createSession(
     throw new Error(`File is larger than ${MAX_DOCUMENT_BYTES} bytes: ${inputPath}`);
   }
 
-  const content = await readFile(inputPath, 'utf8');
+  const content = await readFile(inputPath, "utf8");
   // mkdtemp creates the directory with mode 0700.
   const dir = await mkdtemp(join(baseDir, PREFIX));
   const paths = pathsFor(dir, dir.slice(-6));
-  await writeFile(paths.document, content, { flag: 'wx', mode: 0o600 });
+  await writeFile(paths.document, content, { flag: "wx", mode: 0o600 });
   return { paths, document: describeDocument(content) };
 }
 
@@ -93,5 +93,5 @@ export async function resolveSession(id: string, baseDir = tmpdir()): Promise<Se
 }
 
 export async function loadDocument(paths: SessionPaths): Promise<DocumentInfo> {
-  return describeDocument(await readFile(paths.document, 'utf8'));
+  return describeDocument(await readFile(paths.document, "utf8"));
 }
