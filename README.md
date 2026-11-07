@@ -84,6 +84,10 @@ npm run lint         # oxlint
 npm run format       # oxfmt (format:check to check without writing)
 ```
 
+Git hooks are managed by [Lefthook](https://lefthook.dev) and installed by `npm install`. Before each commit they
+lint and format-check the staged files and run the unit tests; before each push they lint and format-check the whole
+project, typecheck, and run the unit and end-to-end tests. Skip them once with `LEFTHOOK=0`.
+
 Frontend with live reload: run `npm run dev:server` (serves `example.md` on port 4100 and prints a URL with a token),
 then `npm run dev:web` and open `http://localhost:5173/#token=<token from the first command>`.
 
