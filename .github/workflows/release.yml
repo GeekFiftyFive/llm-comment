@@ -1,0 +1,116 @@
+# Publishes to npm when a v* tag is pushed, e.g. v0.2.0 (or v0.2.0-beta.1, published under the `next` dist-tag).
+#
+# The checks here catch mistakes. Protection against a malicious release comes from settings outside this file:
+# a tag ruleset restricting who can push v* tags, the `npm` environment requiring approval, and npm trusted
+# publishing being bound to this workflow and environment. See "Releasing" in the README.
+#
+# The build job runs `npm ci`, which executes dependencies' install scripts, so it gets no publishing rights.
+# The publish job is the only one that can request an npm token, and it runs no project or dependency code:
+# it publishes the exact tarball the build job tested.
+
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Verify and pack
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      dist-tag: ${{ steps.version.outputs.dist-tag }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          # Full history, for the "is on main" check below.
+          fetch-depth: 0
+
+      - name: Check the tag matches package.json
+        id: version
+        run: |
+          version=$(node -p "require('./package.json').version")
+          if [ "$GITHUB_REF_NAME" != "v$version" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match package.json version $version (expected v$version)"
+            exit 1
+          fi
+          case "$version" in
+            *-*) echo "dist-tag=next" >> "$GITHUB_OUTPUT" ;;
+            *) echo "dist-tag=latest" >> "$GITHUB_OUTPUT" ;;
+          esac
+
+      - name: Check the tagged commit is on main
+        run: |
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::$GITHUB_REF_NAME points at $GITHUB_SHA, which is not on main"
+            exit 1
+          fi
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          # Never restore caches in a release build.
+          package-manager-cache: false
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run test:e2e
+
+      - name: Pack
+        run: npm pack
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: package
+          path: llm-comment-*.tgz
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish to npm
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Requires approval, and is the environment npm's trusted publisher is bound to.
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+          registry-url: https://registry.npmjs.org
+          package-manager-cache: false
+
+      - name: Check npm supports trusted publishing
+        run: |
+          node -e '
+            const [major, minor, patch] = process.argv[1].split(".").map(Number);
+            if (major < 11 || (major === 11 && (minor < 5 || (minor === 5 && patch < 1)))) {
+              console.error(`::error::npm ${process.argv[1]} is too old for trusted publishing (needs 11.5.1+)`);
+              process.exit(1);
+            }
+          ' "$(npm --version)"
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: package
+
+      # Provenance is added automatically with trusted publishing. Publishing a tarball runs no package scripts.
+      - name: Publish
+        run: npm publish ./llm-comment-*.tgz --access public --tag "$DIST_TAG"
+        env:
+          DIST_TAG: ${{ needs.build.outputs.dist-tag }}

@@ -5,6 +5,10 @@
   "keywords": [],
   "license": "ISC",
   "author": "",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/GeekFiftyFive/llm-comment.git"
+  },
   "bin": {
     "llm-comment": "dist/cli.js"
   },

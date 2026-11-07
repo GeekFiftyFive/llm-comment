@@ -1,0 +1,41 @@
+# Checks every pull request to main, including drafts.
+#
+# Safe for pull requests from forks: `pull_request` runs with a read-only token and no secrets.
+# Never change this to `pull_request_target`, which runs untrusted code with this repo's privileges.
+
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    # Referenced by the main branch ruleset as a required status check; keep the name stable.
+    name: Lint, build and test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run format:check
+      - run: npm run typecheck
+      - run: npm run build
+      - run: npm test
+      - run: npm run test:e2e
