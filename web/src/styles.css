@@ -37,7 +37,11 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font: 15px/1.6 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font:
+    15px/1.6 system-ui,
+    -apple-system,
+    "Segoe UI",
+    sans-serif;
 }
 
 button {
@@ -100,7 +104,7 @@ button.danger {
   border-radius: 0 6px 6px 0;
   border-left: none;
 }
-.segmented button[aria-pressed='true'] {
+.segmented button[aria-pressed="true"] {
   background: var(--panel);
   font-weight: 600;
 }
@@ -123,7 +127,7 @@ button.danger {
 }
 .markdown pre,
 .markdown code {
-  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
   font-size: 13px;
   background: var(--code-bg);
   border-radius: 4px;
@@ -172,7 +176,11 @@ button.danger {
 
 .source {
   margin: 0;
-  font: 13px/1.6 ui-monospace, 'SF Mono', Menlo, monospace;
+  font:
+    13px/1.6 ui-monospace,
+    "SF Mono",
+    Menlo,
+    monospace;
   white-space: pre-wrap;
   word-break: break-word;
 }
