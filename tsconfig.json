@@ -1,0 +1,26 @@
+{
+  // Base config: used by the editor and `npm run typecheck` (src + tests, no emit).
+  // tsconfig.build.json extends this to emit src/ into dist/.
+  "compilerOptions": {
+    "module": "nodenext",
+    "target": "es2024",
+    "lib": ["es2024"],
+    "types": ["node", "jest"],
+    "rootDir": ".",
+    "noEmit": true,
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src", "test"]
+}

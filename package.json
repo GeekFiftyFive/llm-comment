@@ -1,0 +1,37 @@
+{
+  "name": "llm-comment",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "bin": {
+    "llm-comment": "dist/cli.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "clean": "node -e \"require('fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.build.json",
+    "typecheck": "tsc",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "start": "node dist/cli.js",
+    "prepare": "npm run build"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@swc/core": "^1.16.22",
+    "@swc/jest": "^0.2.39",
+    "@types/jest": "^30.0.0",
+    "@types/node": "^24.19.2",
+    "jest": "^30.5.2",
+    "typescript": "^7.0.2"
+  }
+}
