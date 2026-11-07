@@ -1,13 +1,11 @@
 {
   "name": "llm-comment",
   "version": "0.1.0",
-  "description": "",
+  "description": "Leave inline comments on AI agent output in a local web UI",
   "type": "module",
   "bin": {
     "llm-comment": "dist/cli.js"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
   "files": [
     "dist"
   ],
@@ -19,10 +17,11 @@
     "build": "npm run clean && tsc -p tsconfig.build.json && vite build",
     "typecheck": "tsc && tsc -p web",
     "test": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/",
-    "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/ --watch",
-    "start": "node dist/cli.js",
+    "test:e2e": "npm run build && node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js test/e2e",
+    "dev:server": "npm run build && node dist/cli.js open example.md --wait --no-open --port 4100",
+    "dev:web": "vite",
     "prepare": "npm run build",
-    "dev:web": "vite"
+    "test:watch": "node --experimental-vm-modules --disable-warning=ExperimentalWarning node_modules/jest/bin/jest.js --testPathIgnorePatterns=/e2e/ --watch"
   },
   "keywords": [],
   "author": "",
@@ -44,6 +43,7 @@
     "vite": "^8.3.6"
   },
   "dependencies": {
-    "fastify": "^5.12.8"
+    "fastify": "^5.12.8",
+    "open": "^11.0.4"
   }
 }
