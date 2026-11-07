@@ -80,6 +80,8 @@ npm run build        # compile the CLI and bundle the frontend into dist/
 npm run typecheck    # tsc over src, test and web
 npm test             # unit tests
 npm run test:e2e     # builds, then drives the real CLI
+npm run lint         # oxlint
+npm run format       # oxfmt (format:check to check without writing)
 ```
 
 Frontend with live reload: run `npm run dev:server` (serves `example.md` on port 4100 and prints a URL with a token),
