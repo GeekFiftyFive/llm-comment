@@ -1,30 +1,48 @@
 # llm-comment
 
-Leave inline comments on AI agent output in a local web UI, then hand them back to the agent. Works with any harness
-that can run a shell command.
+Review what your AI agent wrote the way you'd review a pull request: select passages, leave inline comments, then
+hand them back to the agent to act on.
 
-## Agent skill
+![Reviewing an agent's refactoring plan in llm-comment: commented passages are highlighted, with the comments in a sidebar](docs/images/review.png)
 
-`plugin/skills/review-output/SKILL.md` tells an agent how to write its output to a file, run a review and act on the
-comments. In Claude Code it runs as `/llm-comment:review-output`, or automatically when you ask to comment on its
-output.
+llm-comment opens the agent's output in a local web page, collects your comments, and returns them as JSON tied to
+the exact text you selected. It comes with a Claude Code skill that runs the whole loop for you, and the CLI can be
+driven by any agent that can run shell commands. Requires Node.js 24 or later.
 
-Install in Claude Code (this repo is also a plugin marketplace). Run this from any directory; there's no need to
-clone the repo first:
+## Claude Code skill
+
+### Install
+
+Run this in Claude Code, from any directory. There's no need to clone this repo, which doubles as a plugin
+marketplace:
 
 ```sh
 /plugin install llm-comment --marketplace GeekFiftyFive/llm-comment
 ```
 
-Claude Code fetches the marketplace straight from the `GeekFiftyFive/llm-comment` GitHub repo, saves it in your user
-settings and installs the skill for all your projects. Add `--scope project` to record it in the current project's
-`.claude/settings.json` instead, so collaborators are offered it too.
+This installs the skill for all your projects. Add `--scope project` to record it in the current project's
+`.claude/settings.json` instead, so collaborators are offered it too. On Claude Code versions before 2.1.275, add the
+marketplace first with `/plugin marketplace add GeekFiftyFive/llm-comment`, then run
+`/plugin install llm-comment@llm-comment`.
 
-On versions before 2.1.275, add the marketplace first:
-`/plugin marketplace add GeekFiftyFive/llm-comment`, then `/plugin install llm-comment@llm-comment`.
+You don't need to install the CLI separately: the skill uses `llm-comment` if it's on your `PATH`, and otherwise runs
+a pinned version with `npx`.
 
-The skill runs `llm-comment` if it's on your `PATH`, and otherwise `npx -y llm-comment@<pinned version>`, so you
-don't need to install the CLI separately.
+### Use
+
+When Claude has written something you want to give feedback on, such as a plan, a design or a draft, run:
+
+```sh
+/llm-comment:review-output
+```
+
+Or just ask, for example "let me comment on that". To review something other than Claude's last response, say what:
+`/llm-comment:review-output the migration plan`, or give a file path.
+
+1. Claude saves its response to a file and opens it in your browser.
+2. Select any passage and add a comment. You can switch between the rendered view and the Markdown source, and edit
+   or delete comments as you go.
+3. Click **Finish review**. Claude receives your comments, works through each one, and tells you what it changed.
 
 ## CLI usage
 
@@ -94,33 +112,8 @@ then `npm run dev:web` and open `http://localhost:5173/#token=<token from the fi
 To try the skill against your working copy, run `npm link` (puts `llm-comment` on your `PATH`, pointing at `dist/`),
 then start Claude Code with `claude --plugin-dir ./plugin`. Check manifests with `claude plugin validate .`.
 
+Every pull request to `main`, including drafts, runs lint, format check, typecheck, build and all tests in CI
+(`.github/workflows/ci.yml`). For publishing new versions, see [docs/RELEASING.md](docs/RELEASING.md).
+
 Jest runs under `node --experimental-vm-modules` so it can load Fastify's ESM-only dependencies. TypeScript 7 has no
 compiler API for ts-jest, so tests are transpiled with SWC and type-checked separately by `npm run typecheck`.
-
-## CI and releasing
-
-Every pull request to `main`, including drafts, runs lint, format check, typecheck, build and all tests
-(`.github/workflows/ci.yml`).
-
-To release:
-
-1. Bump the version in `package.json`, `plugin/.claude-plugin/plugin.json` and the pinned `npx` version in
-   `plugin/skills/review-output/SKILL.md` together, so the skill always runs the CLI it was written for. Merge that to
-   `main`.
-2. Tag the merged commit and push the tag: `git tag v0.2.0 && git push origin v0.2.0`.
-3. Approve the `npm` deployment in the workflow run on GitHub.
-
-`.github/workflows/release.yml` checks the tag matches the `package.json` version and points at a commit on `main`,
-runs every check, packs the package, and publishes that tarball to npm with provenance. Versions with a pre-release
-suffix (`v0.2.0-beta.1`) are published under the `next` dist-tag instead of `latest`.
-
-Publishing uses npm trusted publishing, so no npm token is stored in GitHub. It relies on these settings:
-
-- **npm package settings:** a trusted publisher for GitHub Actions (`GeekFiftyFive/llm-comment`, workflow
-  `release.yml`, environment `npm`), and publishing access set to "Require two-factor authentication and disallow
-  tokens".
-- **GitHub environment `npm`:** a required reviewer, and deployments limited to tags matching `v*`.
-- **GitHub rulesets:** `v*` tags can only be created, moved or deleted by admins; `main` requires a pull request
-  with the "Lint, build and test" check passing.
-- **GitHub Actions settings:** fork pull request workflows need approval for all outside contributors, and the default
-  workflow permissions are read-only.
