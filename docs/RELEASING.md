@@ -4,8 +4,9 @@ Releases are published to npm by GitHub Actions when a version tag is pushed.
 
 ## Steps
 
-1. Bump the version in `package.json`, `plugin/.claude-plugin/plugin.json` and the pinned `npx` version in
-   `plugin/skills/review-output/SKILL.md` together, so the skill always runs the CLI it was written for. Merge that to
+1. Bump the version in `package.json` (`npm install` then updates `package-lock.json`),
+   `plugin/.claude-plugin/plugin.json`, the pinned `npx` version in `plugin/skills/review-output/SKILL.md` and the
+   pinned `npx` examples in `README.md` together, so the skill always runs the CLI it was written for. Merge that to
    `main`.
 2. Tag the merged commit and push the tag: `git tag v0.2.0 && git push origin v0.2.0`.
 3. Approve the `npm` deployment in the workflow run on GitHub.
